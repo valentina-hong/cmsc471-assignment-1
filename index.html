@@ -1,23 +1,758 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assignment 1</title>
-    <link rel="stylesheet" href="css/styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assignment 1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --border: #1e2330;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #a8ff78;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+    --glow: rgba(0,229,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 28px 36px 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent 60%);
+  }
+
+  .title-block h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .title-block h1 span { color: var(--accent); }
+  .title-block p {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 32px;
+  }
+  .stat {
+    text-align: right;
+  }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.58rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    height: calc(100vh - 85px - 180px);
+  }
+
+  /* WRITEUP CARD */
+  .writeup-card {
+    height: 180px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .writeup-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent 50%);
+  }
+  .writeup-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .writeup-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .writeup-body {
+    flex: 1;
+    padding: 12px 20px;
+    overflow-y: auto;
+    font-size: 0.72rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .writeup-body p { margin-bottom: 0.4em; }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sidebar-section h3 {
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .metric-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    padding: 8px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s;
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+  }
+  .metric-btn:hover { border-color: var(--accent); color: var(--text); }
+  .metric-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--glow);
+  }
+  .metric-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .legend-bar {
+    height: 12px;
+    border-radius: 2px;
+    width: 100%;
+  }
+  .legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.58rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .size-legend {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .size-circle {
+    background: rgba(0,229,255,0.2);
+    border: 1px solid rgba(0,229,255,0.5);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .size-label { font-size: 0.58rem; color: var(--muted); }
+
+  /* MAP AREA */
+  .map-container {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 50% 40%, #0d1520 0%, var(--bg) 70%);
+  }
+
+  #map-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .state-path {
+    fill: #111825;
+    stroke: #1e2a3a;
+    stroke-width: 0.5px;
+    transition: fill 0.2s;
+  }
+  .state-path:hover { fill: #16202e; }
+
+  .graticule {
+    fill: none;
+    stroke: #0e1620;
+    stroke-width: 0.5px;
+  }
+
+  .station-dot {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .station-dot:hover { opacity: 1 !important; }
+
+  /* TOOLTIP */
+  #tooltip {
+    position: absolute;
+    background: #0d1218;
+    border: 1px solid var(--accent);
+    padding: 14px 16px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    min-width: 200px;
+    box-shadow: 0 0 24px rgba(0,229,255,0.15);
+  }
+  #tooltip.visible { opacity: 1; }
+  #tooltip .tt-station {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  #tooltip .tt-state {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  #tooltip .tt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.65rem;
+    margin-bottom: 4px;
+  }
+  #tooltip .tt-key { color: var(--muted); }
+  #tooltip .tt-val { color: var(--text); font-weight: 700; }
+
+  .crosshair-h, .crosshair-v {
+    position: absolute;
+    background: rgba(0,229,255,0.08);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .crosshair-h { height: 1px; width: 100%; left: 0; }
+  .crosshair-v { width: 1px; height: 100%; top: 0; }
+
+  .loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .loading-ring {
+    width: 48px; height: 48px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .error-msg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    display: none;
+  }
+  .error-msg .err-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    color: var(--accent2);
+  }
+  .error-msg p { font-size: 0.65rem; color: var(--muted); text-align: center; max-width: 300px; }
+
+  .zoom-controls {
+    position: absolute;
+    bottom: 24px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .zoom-btn {
+    width: 32px; height: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-family: 'Space Mono', monospace;
+  }
+  .zoom-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .map-label {
+    font-size: 0.55rem;
+    fill: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
 </head>
 <body>
-    <div id="tooltip" style="display:none"></div> 
-    <div class="container"> <!-- Centers content and sets max width -->
-        <h1>Assignment 1</h1>
-        <p id="value"></p>
-        <div id="slider"></div>
-        <div id="vis"></div> <!--  Will hold our visualization (SVG) -->
+
+<header>
+  <div class="title-block">
+    <h1><span>Assignment 1</span>: Daily Weather in the US, 2017</h1>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-val" id="stat-stations">—</div>
+      <div class="stat-label">Stations</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-states">—</div>
+      <div class="stat-label">States</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-metric">TAVG</div>
+      <div class="stat-label">Current Metric</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3>Temperature</h3>
+      <button class="metric-btn active" data-metric="TAVG" data-label="Avg Temp (°F/10)">
+        <span class="metric-dot" style="background:#00e5ff"></span>TAVG
+      </button>
+      <button class="metric-btn" data-metric="TMAX" data-label="Max Temp (°F/10)">
+        <span class="metric-dot" style="background:#ff6b35"></span>TMAX
+      </button>
+      <button class="metric-btn" data-metric="TMIN" data-label="Min Temp (°F/10)">
+        <span class="metric-dot" style="background:#4fc3f7"></span>TMIN
+      </button>
     </div>
 
-    <!-- Load D3.js -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/d3-simple-slider"></script>
-    <script src="js/script.js"></script>
+    <div class="sidebar-section">
+      <h3>Precipitation</h3>
+      <button class="metric-btn" data-metric="PRCP" data-label="Precipitation (mm/10)">
+        <span class="metric-dot" style="background:#a8ff78"></span>PRCP
+      </button>
+      <button class="metric-btn" data-metric="SNOW" data-label="Snowfall (mm)">
+        <span class="metric-dot" style="background:#b0d4ff"></span>SNOW
+      </button>
+      <button class="metric-btn" data-metric="SNWD" data-label="Snow Depth (mm)">
+        <span class="metric-dot" style="background:#7ec8e3"></span>SNWD
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Wind</h3>
+      <button class="metric-btn" data-metric="AWND" data-label="Avg Wind Speed (m/s*10)">
+        <span class="metric-dot" style="background:#e0c3fc"></span>AWND
+      </button>
+      <button class="metric-btn" data-metric="WSF5" data-label="Peak Wind Gust (m/s*10)">
+        <span class="metric-dot" style="background:#ffd180"></span>WSF5
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Color Scale</h3>
+      <div class="legend-scale">
+        <div class="legend-bar" id="legend-bar"></div>
+        <div class="legend-labels">
+          <span id="legend-min">—</span>
+          <span id="legend-mid">—</span>
+          <span id="legend-max">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Dot Size = Elevation</h3>
+      <div class="size-legend">
+        <div>
+          <div class="size-circle" style="width:6px;height:6px;margin:0 auto 4px"></div>
+          <div class="size-label">Low</div>
+        </div>
+        <div>
+          <div class="size-circle" style="width:10px;height:10px;margin:0 auto 4px"></div>
+          <div class="size-label">Mid</div>
+        </div>
+        <div>
+          <div class="size-circle" style="width:16px;height:16px;margin:0 auto 4px"></div>
+          <div class="size-label">High</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="map-container" id="map-container">
+    <div class="loading" id="loading">
+      <div class="loading-ring"></div>
+      <p>Loading weather data...</p>
+    </div>
+    <div class="error-msg" id="error-msg">
+      <div class="err-title">⚠ File Not Found</div>
+      <p>Place <strong>weather.csv</strong> in the ./data/ folder and open via a local server, or drag-and-drop the CSV below.</p>
+      <input type="file" id="file-input" accept=".csv" style="margin-top:12px;font-size:0.65rem;color:var(--muted);font-family:inherit">
+    </div>
+    <svg id="map-svg"></svg>
+    <div id="tooltip">
+      <div class="tt-station" id="tt-station"></div>
+      <div class="tt-state" id="tt-state"></div>
+      <div class="tt-row"><span class="tt-key">TAVG</span><span class="tt-val" id="tt-tavg">—</span></div>
+      <div class="tt-row"><span class="tt-key">TMAX</span><span class="tt-val" id="tt-tmax">—</span></div>
+      <div class="tt-row"><span class="tt-key">TMIN</span><span class="tt-val" id="tt-tmin">—</span></div>
+      <div class="tt-row"><span class="tt-key">PRCP</span><span class="tt-val" id="tt-prcp">—</span></div>
+      <div class="tt-row"><span class="tt-key">SNOW</span><span class="tt-val" id="tt-snow">—</span></div>
+      <div class="tt-row"><span class="tt-key">AWND</span><span class="tt-val" id="tt-awnd">—</span></div>
+      <div class="tt-row"><span class="tt-key">ELEV</span><span class="tt-val" id="tt-elev">—</span></div>
+    </div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" id="zoom-in">+</button>
+      <button class="zoom-btn" id="zoom-out">−</button>
+      <button class="zoom-btn" id="zoom-reset" style="font-size:0.6rem;letter-spacing:0">⊡</button>
+    </div>
+  </div>
+</div>
+
+<!-- WRITEUP CARD -->
+<div class="writeup-card">
+  <div class="writeup-header">
+    <span class="writeup-label">Writeup</span>
+  </div>
+  <div class="writeup-body" id="writeup-content">
+    <!-- Add your writeup text here -->
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+const METRICS = {
+  TAVG: { label: 'Avg Temp', unit: '°F/10', scheme: d3.interpolateRdYlBu.bind(null), reverse: true },
+  TMAX: { label: 'Max Temp', unit: '°F/10', scheme: d3.interpolateYlOrRd, reverse: false },
+  TMIN: { label: 'Min Temp', unit: '°F/10', scheme: d3.interpolateYlGnBu, reverse: true },
+  PRCP: { label: 'Precipitation', unit: 'mm/10', scheme: d3.interpolateBlues, reverse: false },
+  SNOW: { label: 'Snowfall', unit: 'mm',    scheme: d3.interpolatePuBu, reverse: false },
+  SNWD: { label: 'Snow Depth', unit: 'mm',  scheme: d3.interpolatePuBuGn, reverse: false },
+  AWND: { label: 'Avg Wind', unit: 'm/s×10',scheme: d3.interpolateRdPu, reverse: false },
+  WSF5: { label: 'Peak Gust', unit: 'm/s×10',scheme: d3.interpolateOrRd, reverse: false },
+};
+
+let currentMetric = 'TAVG';
+let allData = [];
+let svg, projection, path, zoom, g;
+
+// ── SVG & MAP SETUP ───────────────────────────────────────
+function initSVG() {
+  const container = document.getElementById('map-container');
+  const W = container.clientWidth, H = container.clientHeight;
+
+  svg = d3.select('#map-svg')
+    .attr('width', W).attr('height', H);
+
+  projection = d3.geoAlbersUsa()
+    .fitSize([W, H], { type: 'Sphere' })
+    .translate([W / 2, H / 2])
+    .scale(Math.min(W, H) * 1.25);
+
+  path = d3.geoPath().projection(projection);
+
+  zoom = d3.zoom()
+    .scaleExtent([0.5, 12])
+    .on('zoom', (e) => g.attr('transform', e.transform));
+
+  svg.call(zoom);
+
+  g = svg.append('g');
+
+  // Graticule
+  const graticule = d3.geoGraticule().step([10, 10]);
+  g.append('path')
+    .datum(graticule())
+    .attr('class', 'graticule')
+    .attr('d', path);
+
+  return { W, H };
+}
+
+// ── DRAW US MAP ───────────────────────────────────────────
+async function drawMap() {
+  const us = await d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
+  const states = topojson.feature(us, us.objects.states);
+
+  g.selectAll('.state-path')
+    .data(states.features)
+    .enter().append('path')
+    .attr('class', 'state-path')
+    .attr('d', path);
+
+  // State borders
+  g.append('path')
+    .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+    .attr('fill', 'none')
+    .attr('stroke', '#1e2a3a')
+    .attr('stroke-width', 0.8)
+    .attr('d', path);
+}
+
+// ── LOAD DATA ─────────────────────────────────────────────
+async function loadCSV(source) {
+  let raw;
+  if (typeof source === 'string') {
+    raw = await d3.csv(source);
+  } else {
+    // FileReader result
+    raw = d3.csvParse(source);
+  }
+
+  allData = raw.map(d => ({
+    station:   d.station,
+    state:     d.state,
+    lat:       +d.latitude,
+    lon:       +d.longitude,
+    elevation: +d.elevation || 0,
+    date:      d.date,
+    TMIN:      d.TMIN !== '' && d.TMIN != null ? +d.TMIN : null,
+    TMAX:      d.TMAX !== '' && d.TMAX != null ? +d.TMAX : null,
+    TAVG:      d.TAVG !== '' && d.TAVG != null ? +d.TAVG : null,
+    AWND:      d.AWND !== '' && d.AWND != null ? +d.AWND : null,
+    WSF5:      d.WSF5 !== '' && d.WSF5 != null ? +d.WSF5 : null,
+    SNOW:      d.SNOW !== '' && d.SNOW != null ? +d.SNOW : null,
+    SNWD:      d.SNWD !== '' && d.SNWD != null ? +d.SNWD : null,
+    PRCP:      d.PRCP !== '' && d.PRCP != null ? +d.PRCP : null,
+  })).filter(d => {
+    const proj = projection([d.lon, d.lat]);
+    return proj !== null;
+  });
+
+  // Attach projected coords
+  allData.forEach(d => {
+    d._proj = projection([d.lon, d.lat]);
+  });
+
+  // Update header stats
+  const stationSet = new Set(allData.map(d => d.station));
+  const stateSet = new Set(allData.map(d => d.state));
+  document.getElementById('stat-stations').textContent = stationSet.size.toLocaleString();
+  document.getElementById('stat-states').textContent = stateSet.size;
+}
+
+// ── ELEVATION SCALE ───────────────────────────────────────
+function getElevScale() {
+  const elevs = allData.map(d => d.elevation).filter(v => !isNaN(v));
+  return d3.scaleSqrt()
+    .domain([d3.min(elevs), d3.max(elevs)])
+    .range([3, 10]);
+}
+
+// ── DRAW DOTS ─────────────────────────────────────────────
+function drawDots(metric) {
+  currentMetric = metric;
+  document.getElementById('stat-metric').textContent = metric;
+
+  const valid = allData.filter(d => d[metric] !== null && d._proj);
+  const vals = valid.map(d => d[metric]);
+  const [vMin, vMax] = d3.extent(vals);
+  const vMid = (vMin + vMax) / 2;
+
+  const m = METRICS[metric];
+  const colorScale = d3.scaleSequential()
+    .domain(m.reverse ? [vMax, vMin] : [vMin, vMax])
+    .interpolator(m.scheme);
+
+  const elevScale = getElevScale();
+
+  // Remove old dots
+  g.selectAll('.station-dot').remove();
+
+  const tooltip = document.getElementById('tooltip');
+  const container = document.getElementById('map-container');
+
+  g.selectAll('.station-dot')
+    .data(valid)
+    .enter().append('circle')
+    .attr('class', 'station-dot')
+    .attr('cx', d => d._proj[0])
+    .attr('cy', d => d._proj[1])
+    .attr('r', d => elevScale(isNaN(d.elevation) ? 0 : d.elevation))
+    .attr('fill', d => colorScale(d[metric]))
+    .attr('fill-opacity', 0.82)
+    .attr('stroke', d => d3.color(colorScale(d[metric])).brighter(0.6))
+    .attr('stroke-width', 0.6)
+    .attr('stroke-opacity', 0.6)
+    .on('mousemove', function(event, d) {
+      const [mx, my] = d3.pointer(event, container);
+      const bw = 210, bh = 200;
+      const left = mx + 14 + bw > container.clientWidth ? mx - bw - 10 : mx + 14;
+      const top  = my + bh > container.clientHeight ? my - bh : my + 10;
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top  = top  + 'px';
+      tooltip.classList.add('visible');
+
+      document.getElementById('tt-station').textContent = d.station;
+      document.getElementById('tt-state').textContent   = (d.state || '') + (d.date ? '  ·  ' + d.date : '');
+      document.getElementById('tt-tavg').textContent    = d.TAVG != null ? (d.TAVG / 10).toFixed(1) + ' °F' : '—';
+      document.getElementById('tt-tmax').textContent    = d.TMAX != null ? (d.TMAX / 10).toFixed(1) + ' °F' : '—';
+      document.getElementById('tt-tmin').textContent    = d.TMIN != null ? (d.TMIN / 10).toFixed(1) + ' °F' : '—';
+      document.getElementById('tt-prcp').textContent    = d.PRCP != null ? (d.PRCP / 10).toFixed(1) + ' mm' : '—';
+      document.getElementById('tt-snow').textContent    = d.SNOW != null ? d.SNOW + ' mm' : '—';
+      document.getElementById('tt-awnd').textContent    = d.AWND != null ? (d.AWND / 10).toFixed(1) + ' m/s' : '—';
+      document.getElementById('tt-elev').textContent    = !isNaN(d.elevation) ? d.elevation + ' m' : '—';
+
+      d3.select(this).attr('fill-opacity', 1).attr('r', elevScale(d.elevation || 0) * 1.4);
+    })
+    .on('mouseleave', function(event, d) {
+      tooltip.classList.remove('visible');
+      d3.select(this)
+        .attr('fill-opacity', 0.82)
+        .attr('r', elevScale(isNaN(d.elevation) ? 0 : d.elevation));
+    });
+
+  // Update legend
+  updateLegend(colorScale, vMin, vMid, vMax, m);
+}
+
+function updateLegend(colorScale, vMin, vMid, vMax, m) {
+  // Gradient bar
+  const steps = 20;
+  const stops = d3.range(steps).map(i => {
+    const t = i / (steps - 1);
+    const v = vMin + t * (vMax - vMin);
+    return colorScale(v);
+  });
+  const bar = document.getElementById('legend-bar');
+  bar.style.background = `linear-gradient(to right, ${stops.join(',')})`;
+
+  const fmt = v => {
+    if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + 'k';
+    return v % 1 === 0 ? v : v.toFixed(1);
+  };
+  document.getElementById('legend-min').textContent = fmt(vMin);
+  document.getElementById('legend-mid').textContent = fmt(vMid);
+  document.getElementById('legend-max').textContent = fmt(vMax);
+}
+
+// ── ZOOM CONTROLS ─────────────────────────────────────────
+function setupZoom() {
+  document.getElementById('zoom-in').addEventListener('click', () =>
+    svg.transition().call(zoom.scaleBy, 1.6));
+  document.getElementById('zoom-out').addEventListener('click', () =>
+    svg.transition().call(zoom.scaleBy, 0.625));
+  document.getElementById('zoom-reset').addEventListener('click', () =>
+    svg.transition().call(zoom.transform, d3.zoomIdentity));
+}
+
+// ── METRIC BUTTONS ────────────────────────────────────────
+function setupButtons() {
+  document.querySelectorAll('.metric-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.metric-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawDots(btn.dataset.metric);
+    });
+  });
+}
+
+// ── FILE DROP FALLBACK ────────────────────────────────────
+function setupFileInput() {
+  document.getElementById('file-input').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('loading').style.display = 'flex';
+    await loadCSV(text);
+    document.getElementById('loading').style.display = 'none';
+    drawDots(currentMetric);
+  });
+}
+
+// ── MAIN ──────────────────────────────────────────────────
+(async () => {
+  initSVG();
+  setupZoom();
+  setupButtons();
+  setupFileInput();
+
+  try {
+    await drawMap();
+    await loadCSV('./data/weather.csv');
+    document.getElementById('loading').style.display = 'none';
+    drawDots('TAVG');
+  } catch (err) {
+    console.warn('CSV load error:', err);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'flex';
+  }
+})();
+</script>
 </body>
 </html>

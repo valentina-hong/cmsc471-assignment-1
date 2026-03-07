@@ -87,13 +87,13 @@
 
   .layout {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    height: calc(100vh - 85px - 180px);
+    grid-template-columns: 220px 1fr 300px;
+    height: calc(100vh - 85px - 140px);
   }
 
   /* WRITEUP CARD */
   .writeup-card {
-    height: 180px;
+    height: 140px;
     border-top: 1px solid var(--border);
     background: var(--surface);
     display: flex;
@@ -213,6 +213,114 @@
   }
   .size-label { font-size: 0.58rem; color: var(--muted); }
 
+  /* ── DATE SLIDER ─────────────────────────────────── */
+  .date-display {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .date-current {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .date-sub {
+    font-size: 0.56rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .date-count {
+    font-size: 0.62rem;
+    color: var(--accent3);
+    margin-top: 2px;
+  }
+
+  /* Custom range slider */
+  .slider-wrap {
+    position: relative;
+    padding: 4px 0 8px;
+  }
+  input[type=range].date-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    outline: none;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  input[type=range].date-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0,229,255,0.6);
+    border: 2px solid var(--bg);
+    transition: transform 0.12s;
+  }
+  input[type=range].date-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+  }
+  input[type=range].date-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(0,229,255,0.6);
+    border: 2px solid var(--bg);
+  }
+  /* Filled track portion */
+  .slider-track-fill {
+    position: absolute;
+    top: 50%; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), rgba(0,229,255,0.4));
+    border-radius: 2px;
+    pointer-events: none;
+    transform: translateY(-50%);
+    margin-top: -4px; /* align with input track */
+  }
+
+  .slider-endpoints {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.54rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Playback button */
+  .play-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    padding: 6px 10px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.18s;
+    margin-top: 8px;
+    letter-spacing: 0.06em;
+  }
+  .play-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+  .play-btn.playing { border-color: var(--accent2); color: var(--accent2); }
+  .play-icon { font-size: 0.8rem; line-height: 1; }
+
   /* MAP AREA */
   .map-container {
     position: relative;
@@ -282,16 +390,6 @@
   #tooltip .tt-key { color: var(--muted); }
   #tooltip .tt-val { color: var(--text); font-weight: 700; }
 
-  .crosshair-h, .crosshair-v {
-    position: absolute;
-    background: rgba(0,229,255,0.08);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  .crosshair-h { height: 1px; width: 100%; left: 0; }
-  .crosshair-v { width: 1px; height: 100%; top: 0; }
-
   .loading {
     position: absolute;
     inset: 0;
@@ -353,12 +451,165 @@
   }
   .zoom-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  .map-label {
+  /* ── STATE FILTER ─────────────────────────────────── */
+  .state-filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .state-current {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+  .state-clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.54rem;
+    padding: 3px 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.06em;
+  }
+  .state-clear-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .state-btn-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .state-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
     font-size: 0.55rem;
-    fill: var(--muted);
+    padding: 3px 5px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+  .state-btn:hover { border-color: var(--accent); color: var(--text); }
+  .state-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--glow);
+  }
+
+  /* ── SCATTERPLOT PANEL ───────────────────────────── */
+  .scatter-panel {
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .scatter-header {
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+  .scatter-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent2), transparent 60%);
+  }
+  .scatter-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .scatter-title {
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .scatter-count {
+    font-size: 0.58rem;
+    color: var(--accent2);
+    letter-spacing: 0.06em;
+  }
+  .scatter-axis-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .axis-label-tag {
+    font-size: 0.55rem;
+    color: var(--muted);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
+  .axis-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 3px 6px;
+    cursor: pointer;
+    outline: none;
+    flex: 1;
+  }
+  .axis-select:focus { border-color: var(--accent); }
+  #scatter-svg {
+    flex: 1;
+    width: 100%;
+  }
+  .scatter-dot {
+    cursor: pointer;
+    transition: opacity 0.1s;
+  }
+
+  /* brush mode toggle */
+  .brush-toggle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    padding: 5px 10px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: all 0.15s;
+    z-index: 5;
+    pointer-events: all;
+    white-space: nowrap;
+  }
+  .brush-toggle:hover { border-color: var(--accent2); color: var(--accent2); }
+  .brush-toggle.active {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,107,53,0.12);
+    box-shadow: 0 0 12px rgba(255,107,53,0.2);
+  }
+
+  /* D3 brush styling */
+  .brush-overlay { fill: transparent; }
+  .brush-selection {
+    fill: rgba(255,107,53,0.1);
+    stroke: var(--accent2);
+    stroke-width: 1px;
+    stroke-dasharray: 3,2;
+  }
+  .brush-handle { display: none; }
+</style>
 </style>
 </head>
 <body>
@@ -385,6 +636,46 @@
 
 <div class="layout">
   <aside class="sidebar">
+
+    <!-- ── DATE FILTER ── -->
+    <div class="sidebar-section">
+      <h3>Date Filter</h3>
+      <div class="date-display">
+        <div class="date-current" id="date-display">All Dates</div>
+        <div class="date-sub" id="date-sub">Showing all observations</div>
+        <div class="date-count" id="date-count"></div>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-track-fill" id="slider-fill"></div>
+        <input
+          type="range"
+          class="date-slider"
+          id="date-slider"
+          min="0"
+          max="0"
+          value="0"
+          step="1"
+        />
+      </div>
+      <div class="slider-endpoints">
+        <span id="date-start">—</span>
+        <span id="date-end">—</span>
+      </div>
+      <button class="play-btn" id="play-btn">
+        <span class="play-icon" id="play-icon">▶</span>
+        <span id="play-label">ANIMATE YEAR</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>State Filter</h3>
+      <div class="state-filter-row">
+        <span class="state-current" id="state-filter-label">All states</span>
+        <button class="state-clear-btn" id="state-clear-btn">✕ Clear</button>
+      </div>
+      <div class="state-btn-grid" id="state-btn-grid"></div>
+    </div>
+
     <div class="sidebar-section">
       <h3>Temperature</h3>
       <button class="metric-btn active" data-metric="TAVG" data-label="Avg Temp (°F/10)">
@@ -474,11 +765,45 @@
       <div class="tt-row"><span class="tt-key">AWND</span><span class="tt-val" id="tt-awnd">—</span></div>
       <div class="tt-row"><span class="tt-key">ELEV</span><span class="tt-val" id="tt-elev">—</span></div>
     </div>
+    <button class="brush-toggle" id="brush-toggle">⬚ BRUSH MODE</button>
     <div class="zoom-controls">
       <button class="zoom-btn" id="zoom-in">+</button>
       <button class="zoom-btn" id="zoom-out">−</button>
       <button class="zoom-btn" id="zoom-reset" style="font-size:0.6rem;letter-spacing:0">⊡</button>
     </div>
+  </div>
+
+  <!-- SCATTERPLOT PANEL -->
+  <div class="scatter-panel">
+    <div class="scatter-header">
+      <div class="scatter-title-row">
+        <span class="scatter-title">Scatterplot — Brush map to link</span>
+        <span class="scatter-count" id="scatter-count"></span>
+      </div>
+      <div class="scatter-axis-row">
+        <span class="axis-label-tag">X</span>
+        <select class="axis-select" id="scatter-x">
+          <option value="TMIN" selected>TMIN</option>
+          <option value="TMAX">TMAX</option>
+          <option value="TAVG">TAVG</option>
+          <option value="PRCP">PRCP</option>
+          <option value="SNOW">SNOW</option>
+          <option value="AWND">AWND</option>
+          <option value="WSF5">WSF5</option>
+        </select>
+        <span class="axis-label-tag">Y</span>
+        <select class="axis-select" id="scatter-y">
+          <option value="TMIN">TMIN</option>
+          <option value="TMAX" selected>TMAX</option>
+          <option value="TAVG">TAVG</option>
+          <option value="PRCP">PRCP</option>
+          <option value="SNOW">SNOW</option>
+          <option value="AWND">AWND</option>
+          <option value="WSF5">WSF5</option>
+        </select>
+      </div>
+    </div>
+    <svg id="scatter-svg"></svg>
   </div>
 </div>
 
@@ -507,7 +832,20 @@ const METRICS = {
 
 let currentMetric = 'TAVG';
 let allData = [];
+let sortedDates = [];
+let currentDateIndex = -1;
+let selectedState  = null;
+let playInterval = null;
 let svg, projection, path, zoom, g;
+let globalColorDomains = {};
+
+// ── Brush + Scatter state
+let currentTransform = d3.zoomIdentity;
+let brushedStations  = new Set();   // station names inside brush; empty = no brush active
+let brushMode        = false;
+let currentValid     = [];          // exposed from drawDots for scatterplot use
+let scatterXVar = 'TMIN', scatterYVar = 'TMAX';
+let scatterSvg, scatterG, sxScale, syScale;
 
 // ── SVG & MAP SETUP ───────────────────────────────────────
 function initSVG() {
@@ -526,10 +864,12 @@ function initSVG() {
 
   zoom = d3.zoom()
     .scaleExtent([0.5, 12])
-    .on('zoom', (e) => g.attr('transform', e.transform));
+    .on('zoom', (e) => {
+      currentTransform = e.transform;
+      g.attr('transform', e.transform);
+    });
 
   svg.call(zoom);
-
   g = svg.append('g');
 
   // Graticule
@@ -553,7 +893,6 @@ async function drawMap() {
     .attr('class', 'state-path')
     .attr('d', path);
 
-  // State borders
   g.append('path')
     .datum(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
     .attr('fill', 'none')
@@ -565,10 +904,9 @@ async function drawMap() {
 // ── LOAD DATA ─────────────────────────────────────────────
 async function loadCSV(source) {
   let raw;
-  if (typeof source === 'string') {
+  if (typeof source === 'string' && source.startsWith('./')) {
     raw = await d3.csv(source);
   } else {
-    // FileReader result
     raw = d3.csvParse(source);
   }
 
@@ -578,30 +916,143 @@ async function loadCSV(source) {
     lat:       +d.latitude,
     lon:       +d.longitude,
     elevation: +d.elevation || 0,
-    date:      d.date,
-    TMIN:      d.TMIN !== '' && d.TMIN != null ? +d.TMIN : null,
-    TMAX:      d.TMAX !== '' && d.TMAX != null ? +d.TMAX : null,
-    TAVG:      d.TAVG !== '' && d.TAVG != null ? +d.TAVG : null,
-    AWND:      d.AWND !== '' && d.AWND != null ? +d.AWND : null,
-    WSF5:      d.WSF5 !== '' && d.WSF5 != null ? +d.WSF5 : null,
-    SNOW:      d.SNOW !== '' && d.SNOW != null ? +d.SNOW : null,
-    SNWD:      d.SNWD !== '' && d.SNWD != null ? +d.SNWD : null,
-    PRCP:      d.PRCP !== '' && d.PRCP != null ? +d.PRCP : null,
-  })).filter(d => {
-    const proj = projection([d.lon, d.lat]);
-    return proj !== null;
+    date:      +d.date,
+    TMIN:  d.TMIN !== '' && d.TMIN != null ? +d.TMIN : null,
+    TMAX:  d.TMAX !== '' && d.TMAX != null ? +d.TMAX : null,
+    TAVG:  d.TAVG !== '' && d.TAVG != null ? +d.TAVG : null,
+    AWND:  d.AWND !== '' && d.AWND != null ? +d.AWND : null,
+    WSF5:  d.WSF5 !== '' && d.WSF5 != null ? +d.WSF5 : null,
+    SNOW:  d.SNOW !== '' && d.SNOW != null ? +d.SNOW : null,
+    SNWD:  d.SNWD !== '' && d.SNWD != null ? +d.SNWD : null,
+    PRCP:  d.PRCP !== '' && d.PRCP != null ? +d.PRCP : null,
+  })).filter(d => projection([d.lon, d.lat]) !== null);
+
+  allData.forEach(d => { d._proj = projection([d.lon, d.lat]); });
+
+  // Compute global color domains from ALL data so colors are stable
+  Object.keys(METRICS).forEach(m => {
+    const vals = allData.map(d => d[m]).filter(v => v !== null && !isNaN(v));
+    globalColorDomains[m] = d3.extent(vals);
   });
 
-  // Attach projected coords
-  allData.forEach(d => {
-    d._proj = projection([d.lon, d.lat]);
-  });
+  // Extract & sort unique dates
+  sortedDates = [...new Set(allData.map(d => d.date))].sort((a, b) => a - b);
 
-  // Update header stats
+  // Header stats (all data)
   const stationSet = new Set(allData.map(d => d.station));
   const stateSet = new Set(allData.map(d => d.state));
   document.getElementById('stat-stations').textContent = stationSet.size.toLocaleString();
   document.getElementById('stat-states').textContent = stateSet.size;
+
+  setupDateSlider();
+  setupStateFilter();
+}
+
+// ── DATE SLIDER SETUP ─────────────────────────────────────
+function setupDateSlider() {
+  const slider = document.getElementById('date-slider');
+  const fill   = document.getElementById('slider-fill');
+
+  slider.min   = 0;
+  // +1 position for "all dates" at position 0; dates at 1…n
+  slider.max   = sortedDates.length;
+  slider.value = 0;
+
+  // Endpoint labels
+  document.getElementById('date-start').textContent = formatDate(sortedDates[0]);
+  document.getElementById('date-end').textContent   = formatDate(sortedDates[sortedDates.length - 1]);
+
+  function updateFill() {
+    const pct = (slider.value / slider.max) * 100;
+    fill.style.width = pct + '%';
+  }
+
+  slider.addEventListener('input', () => {
+    const idx = +slider.value;
+    currentDateIndex = idx === 0 ? -1 : idx - 1;
+    updateDateDisplay();
+    updateFill();
+    drawDots(currentMetric);
+  });
+
+  updateFill();
+  updateDateDisplay();
+}
+
+function updateDateDisplay() {
+  const displayEl = document.getElementById('date-display');
+  const subEl     = document.getElementById('date-sub');
+  const countEl   = document.getElementById('date-count');
+
+  if (currentDateIndex === -1) {
+    displayEl.textContent = 'All Dates';
+    subEl.textContent     = 'Showing all observations';
+    countEl.textContent   = allData.length.toLocaleString() + ' total readings';
+  } else {
+    const d = sortedDates[currentDateIndex];
+    displayEl.textContent = formatDate(d);
+    subEl.textContent     = 'Day ' + (currentDateIndex + 1) + ' of ' + sortedDates.length;
+    const dayCount = allData.filter(r => r.date === d).length;
+    countEl.textContent   = dayCount.toLocaleString() + ' stations';
+  }
+}
+
+function formatDate(dateInt) {
+  const s = String(dateInt);
+  const year  = s.slice(0, 4);
+  const month = s.slice(4, 6);
+  const day   = s.slice(6, 8);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun',
+                  'Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[+month - 1] + ' ' + (+day) + ', ' + year;
+}
+
+// ── PLAY / ANIMATE ────────────────────────────────────────
+function setupPlayButton() {
+  const btn   = document.getElementById('play-btn');
+  const icon  = document.getElementById('play-icon');
+  const label = document.getElementById('play-label');
+  const slider = document.getElementById('date-slider');
+
+  btn.addEventListener('click', () => {
+    if (playInterval) {
+      // Stop
+      clearInterval(playInterval);
+      playInterval = null;
+      btn.classList.remove('playing');
+      icon.textContent  = '▶';
+      label.textContent = 'ANIMATE YEAR';
+    } else {
+      // Start — if at end, reset to beginning
+      if (currentDateIndex >= sortedDates.length - 1) {
+        currentDateIndex = -1;
+        slider.value = 0;
+      }
+      btn.classList.add('playing');
+      icon.textContent  = '■';
+      label.textContent = 'STOP';
+
+      playInterval = setInterval(() => {
+        const next = currentDateIndex + 1;
+        if (next >= sortedDates.length) {
+          // Reached end
+          clearInterval(playInterval);
+          playInterval = null;
+          btn.classList.remove('playing');
+          icon.textContent  = '▶';
+          label.textContent = 'ANIMATE YEAR';
+          return;
+        }
+        currentDateIndex = next;
+        slider.value = next + 1;
+        // Update fill
+        document.getElementById('slider-fill').style.width =
+          ((slider.value / slider.max) * 100) + '%';
+        updateDateDisplay();
+        drawDots(currentMetric);
+      }, 120); // ~120 ms per day → full year ≈ 44s (adjust as needed)
+    }
+  });
 }
 
 // ── ELEVATION SCALE ───────────────────────────────────────
@@ -617,48 +1068,67 @@ function drawDots(metric) {
   currentMetric = metric;
   document.getElementById('stat-metric').textContent = metric;
 
-  const valid = allData.filter(d => d[metric] !== null && d._proj);
-  const vals = valid.map(d => d[metric]);
-  const [vMin, vMax] = d3.extent(vals);
-  const vMid = (vMin + vMax) / 2;
+  // Filter by date
+  let dateFiltered;
+  if (currentDateIndex === -1) {
+    const seen = new Set();
+    dateFiltered = allData.filter(d => {
+      if (seen.has(d.station)) return false;
+      seen.add(d.station);
+      return true;
+    });
+  } else {
+    dateFiltered = allData.filter(d => d.date === sortedDates[currentDateIndex]);
+  }
 
+  // Filter by state
+  const stateFiltered = selectedState
+    ? dateFiltered.filter(d => d.state === selectedState)
+    : dateFiltered;
+
+  currentValid = stateFiltered.filter(d => d[metric] !== null && d._proj);
+
+  const [gMin, gMax] = globalColorDomains[metric] || d3.extent(currentValid, d => d[metric]);
   const m = METRICS[metric];
+
   const colorScale = d3.scaleSequential()
-    .domain(m.reverse ? [vMax, vMin] : [vMin, vMax])
+    .domain(m.reverse ? [gMax, gMin] : [gMin, gMax])
     .interpolator(m.scheme);
 
   const elevScale = getElevScale();
-
-  // Remove old dots
-  g.selectAll('.station-dot').remove();
-
-  const tooltip = document.getElementById('tooltip');
+  const tooltip   = document.getElementById('tooltip');
   const container = document.getElementById('map-container');
 
-  g.selectAll('.station-dot')
-    .data(valid)
-    .enter().append('circle')
+  // Opacity: if brush active, dim non-brushed; else full
+  const targetOpacity = d =>
+    brushedStations.size > 0 && !brushedStations.has(d.station) ? 0.08 : 0.82;
+  const targetRadius = d => elevScale(isNaN(d.elevation) ? 0 : d.elevation);
+
+  const dots = g.selectAll('.station-dot')
+    .data(currentValid, d => d.station);
+
+  // ENTER
+  dots.enter()
+    .append('circle')
     .attr('class', 'station-dot')
     .attr('cx', d => d._proj[0])
     .attr('cy', d => d._proj[1])
-    .attr('r', d => elevScale(isNaN(d.elevation) ? 0 : d.elevation))
+    .attr('r', 0)
     .attr('fill', d => colorScale(d[metric]))
-    .attr('fill-opacity', 0.82)
+    .attr('fill-opacity', 0)
     .attr('stroke', d => d3.color(colorScale(d[metric])).brighter(0.6))
     .attr('stroke-width', 0.6)
     .attr('stroke-opacity', 0.6)
     .on('mousemove', function(event, d) {
       const [mx, my] = d3.pointer(event, container);
       const bw = 210, bh = 200;
-      const left = mx + 14 + bw > container.clientWidth ? mx - bw - 10 : mx + 14;
-      const top  = my + bh > container.clientHeight ? my - bh : my + 10;
-
+      const left = mx + 14 + bw > container.clientWidth  ? mx - bw - 10 : mx + 14;
+      const top  = my + bh      > container.clientHeight ? my - bh      : my + 10;
       tooltip.style.left = left + 'px';
       tooltip.style.top  = top  + 'px';
       tooltip.classList.add('visible');
-
       document.getElementById('tt-station').textContent = d.station;
-      document.getElementById('tt-state').textContent   = (d.state || '') + (d.date ? '  ·  ' + d.date : '');
+      document.getElementById('tt-state').textContent   = (d.state || '') + (d.date ? '  ·  ' + formatDate(d.date) : '');
       document.getElementById('tt-tavg').textContent    = d.TAVG != null ? (d.TAVG / 10).toFixed(1) + ' °F' : '—';
       document.getElementById('tt-tmax').textContent    = d.TMAX != null ? (d.TMAX / 10).toFixed(1) + ' °F' : '—';
       document.getElementById('tt-tmin').textContent    = d.TMIN != null ? (d.TMIN / 10).toFixed(1) + ' °F' : '—';
@@ -666,30 +1136,41 @@ function drawDots(metric) {
       document.getElementById('tt-snow').textContent    = d.SNOW != null ? d.SNOW + ' mm' : '—';
       document.getElementById('tt-awnd').textContent    = d.AWND != null ? (d.AWND / 10).toFixed(1) + ' m/s' : '—';
       document.getElementById('tt-elev').textContent    = !isNaN(d.elevation) ? d.elevation + ' m' : '—';
-
-      d3.select(this).attr('fill-opacity', 1).attr('r', elevScale(d.elevation || 0) * 1.4);
+      d3.select(this).attr('fill-opacity', 1).attr('r', targetRadius(d) * 1.4);
     })
     .on('mouseleave', function(event, d) {
       tooltip.classList.remove('visible');
-      d3.select(this)
-        .attr('fill-opacity', 0.82)
-        .attr('r', elevScale(isNaN(d.elevation) ? 0 : d.elevation));
-    });
+      d3.select(this).attr('fill-opacity', targetOpacity(d)).attr('r', targetRadius(d));
+    })
+    .transition().duration(60)
+    .attr('r', targetRadius)
+    .attr('fill-opacity', targetOpacity);
 
-  // Update legend
-  updateLegend(colorScale, vMin, vMid, vMax, m);
+  // UPDATE
+  dots.transition().duration(60)
+    .attr('fill', d => colorScale(d[metric]))
+    .attr('stroke', d => d3.color(colorScale(d[metric])).brighter(0.6))
+    .attr('r', targetRadius)
+    .attr('fill-opacity', targetOpacity);
+
+  // EXIT
+  dots.exit().transition().duration(60).attr('r', 0).attr('fill-opacity', 0).remove();
+
+  const vMid = (gMin + gMax) / 2;
+  updateLegend(colorScale, gMin, vMid, gMax, m);
+
+  // Keep scatterplot in sync
+  drawScatterplot();
 }
 
 function updateLegend(colorScale, vMin, vMid, vMax, m) {
-  // Gradient bar
   const steps = 20;
   const stops = d3.range(steps).map(i => {
     const t = i / (steps - 1);
-    const v = vMin + t * (vMax - vMin);
-    return colorScale(v);
+    return colorScale(vMin + t * (vMax - vMin));
   });
-  const bar = document.getElementById('legend-bar');
-  bar.style.background = `linear-gradient(to right, ${stops.join(',')})`;
+  document.getElementById('legend-bar').style.background =
+    `linear-gradient(to right, ${stops.join(',')})`;
 
   const fmt = v => {
     if (Math.abs(v) >= 1000) return (v / 1000).toFixed(1) + 'k';
@@ -698,6 +1179,217 @@ function updateLegend(colorScale, vMin, vMid, vMax, m) {
   document.getElementById('legend-min').textContent = fmt(vMin);
   document.getElementById('legend-mid').textContent = fmt(vMid);
   document.getElementById('legend-max').textContent = fmt(vMax);
+}
+
+// ── STATE FILTER ──────────────────────────────────────────
+function setupStateFilter() {
+  const states = [...new Set(allData.map(d => d.state).filter(Boolean))].sort();
+  const grid   = document.getElementById('state-btn-grid');
+  const label  = document.getElementById('state-filter-label');
+
+  states.forEach(st => {
+    const btn = document.createElement('button');
+    btn.className   = 'state-btn';
+    btn.textContent = st;
+    btn.dataset.state = st;
+    btn.addEventListener('click', () => {
+      if (selectedState === st) {
+        // Deselect
+        selectedState = null;
+        label.textContent = 'All states';
+        document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+      } else {
+        selectedState = st;
+        label.textContent = st;
+        document.querySelectorAll('.state-btn').forEach(b =>
+          b.classList.toggle('active', b.dataset.state === st));
+      }
+      drawDots(currentMetric);
+    });
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('state-clear-btn').addEventListener('click', () => {
+    selectedState = null;
+    label.textContent = 'All states';
+    document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+    drawDots(currentMetric);
+  });
+}
+
+// ── BRUSH SETUP ───────────────────────────────────────────
+function setupBrush() {
+  const container = document.getElementById('map-container');
+  const W = container.clientWidth, H = container.clientHeight;
+
+  const brushBehavior = d3.brush()
+    .extent([[0, 0], [W, H]])
+    .on('brush', ({ selection }) => {
+      if (!selection) { brushedStations.clear(); }
+      else {
+        const [[x0, y0], [x1, y1]] = selection;
+        brushedStations.clear();
+        currentValid.forEach(d => {
+          // Transform projected coords to screen coords using current zoom
+          const sx = currentTransform.applyX(d._proj[0]);
+          const sy = currentTransform.applyY(d._proj[1]);
+          if (sx >= x0 && sx <= x1 && sy >= y0 && sy <= y1) {
+            brushedStations.add(d.station);
+          }
+        });
+      }
+      // Update map dot opacities immediately (no transition for responsiveness)
+      g.selectAll('.station-dot')
+        .attr('fill-opacity', d =>
+          brushedStations.size > 0 && !brushedStations.has(d.station) ? 0.06 : 0.82);
+      drawScatterplot();
+    })
+    .on('end', ({ selection }) => {
+      if (!selection) {
+        brushedStations.clear();
+        g.selectAll('.station-dot').attr('fill-opacity', 0.82);
+        drawScatterplot();
+      }
+    });
+
+  // Brush lives on its own overlay layer above the map dots
+  const brushLayer = svg.append('g').attr('class', 'brush-layer');
+
+  const toggleBtn = document.getElementById('brush-toggle');
+  toggleBtn.addEventListener('click', () => {
+    brushMode = !brushMode;
+    toggleBtn.classList.toggle('active', brushMode);
+    toggleBtn.textContent = brushMode ? '✕ EXIT BRUSH' : '⬚ BRUSH MODE';
+
+    if (brushMode) {
+      // Disable zoom, enable brush
+      svg.on('.zoom', null);
+      brushLayer.call(brushBehavior);
+    } else {
+      // Clear brush, re-enable zoom
+      brushLayer.call(brushBehavior.move, null);
+      brushLayer.on('.brush', null);
+      brushedStations.clear();
+      svg.call(zoom);
+      g.selectAll('.station-dot').attr('fill-opacity', 0.82);
+      drawScatterplot();
+    }
+  });
+}
+
+// ── SCATTERPLOT ───────────────────────────────────────────
+function initScatterplot() {
+  const el  = document.getElementById('scatter-svg');
+  const W   = el.clientWidth  || 300;
+  const H   = el.clientHeight || 400;
+  scatterSvg = d3.select('#scatter-svg').attr('width', W).attr('height', H);
+
+  const SM = { top: 16, right: 16, bottom: 44, left: 50 };
+  scatterG  = scatterSvg.append('g').attr('transform', `translate(${SM.left},${SM.top})`);
+  const iW  = W - SM.left - SM.right;
+  const iH  = H - SM.top  - SM.bottom;
+
+  // Axes groups (populated in drawScatterplot)
+  scatterG.append('g').attr('class', 'sx-axis').attr('transform', `translate(0,${iH})`);
+  scatterG.append('g').attr('class', 'sy-axis');
+
+  // Axis labels
+  scatterG.append('text').attr('class', 'sx-label')
+    .attr('x', iW / 2).attr('y', iH + 36)
+    .attr('text-anchor', 'middle')
+    .attr('fill', 'var(--muted)').attr('font-size', '0.6rem').attr('font-family', 'Space Mono, monospace')
+    .attr('letter-spacing', '0.1em').attr('text-transform', 'uppercase');
+
+  scatterG.append('text').attr('class', 'sy-label')
+    .attr('transform', 'rotate(-90)')
+    .attr('x', -iH / 2).attr('y', -38)
+    .attr('text-anchor', 'middle')
+    .attr('fill', 'var(--muted)').attr('font-size', '0.6rem').attr('font-family', 'Space Mono, monospace')
+    .attr('letter-spacing', '0.1em');
+
+  // Axis selector change handlers
+  document.getElementById('scatter-x').addEventListener('change', e => {
+    scatterXVar = e.target.value; drawScatterplot();
+  });
+  document.getElementById('scatter-y').addEventListener('change', e => {
+    scatterYVar = e.target.value; drawScatterplot();
+  });
+}
+
+function drawScatterplot() {
+  if (!scatterG) return;
+
+  const el = document.getElementById('scatter-svg');
+  const W  = el.clientWidth  || 300;
+  const H  = el.clientHeight || 400;
+  const SM = { top: 16, right: 16, bottom: 44, left: 50 };
+  const iW = W - SM.left - SM.right;
+  const iH = H - SM.top  - SM.bottom;
+
+  // Use currentValid (same data as map dots)
+  const plotData = currentValid.filter(
+    d => d[scatterXVar] != null && d[scatterYVar] != null
+  );
+
+  // Scales — use global domains for stability
+  const [gxMin, gxMax] = globalColorDomains[scatterXVar] || d3.extent(plotData, d => d[scatterXVar]);
+  const [gyMin, gyMax] = globalColorDomains[scatterYVar] || d3.extent(plotData, d => d[scatterYVar]);
+
+  sxScale = d3.scaleLinear().domain([gxMin, gxMax]).range([0, iW]).nice();
+  syScale = d3.scaleLinear().domain([gyMin, gyMax]).range([iH, 0]).nice();
+
+  // Update axes
+  const axisStyle = sel => sel
+    .selectAll('text').attr('fill', 'var(--muted)').attr('font-size', '0.55rem').attr('font-family', 'Space Mono, monospace')
+    .selection().selectAll('path, line').attr('stroke', 'var(--border)');
+
+  scatterG.select('.sx-axis')
+    .call(d3.axisBottom(sxScale).ticks(5).tickSize(-iH))
+    .call(axisStyle)
+    .selectAll('.tick line').attr('stroke', 'var(--border)').attr('stroke-dasharray', '2,3');
+
+  scatterG.select('.sy-axis')
+    .call(d3.axisLeft(syScale).ticks(6).tickSize(-iW))
+    .call(axisStyle)
+    .selectAll('.tick line').attr('stroke', 'var(--border)').attr('stroke-dasharray', '2,3');
+
+  scatterG.select('.sx-label').text(scatterXVar);
+  scatterG.select('.sy-label').text(scatterYVar);
+
+  // Dot color: brushed = accent2, unbrushed = accent, none brushed = accent
+  const dotColor = d =>
+    brushedStations.size > 0
+      ? (brushedStations.has(d.station) ? 'var(--accent2)' : 'var(--muted)')
+      : 'var(--accent)';
+  const dotOpacity = d =>
+    brushedStations.size > 0
+      ? (brushedStations.has(d.station) ? 0.9 : 0.12)
+      : 0.55;
+
+  const dots = scatterG.selectAll('.scatter-dot').data(plotData, d => d.station);
+
+  dots.enter().append('circle')
+    .attr('class', 'scatter-dot')
+    .attr('cx', d => sxScale(d[scatterXVar]))
+    .attr('cy', d => syScale(d[scatterYVar]))
+    .attr('r', 3)
+    .attr('fill', dotColor)
+    .attr('fill-opacity', dotOpacity)
+    .attr('stroke', 'none')
+    .merge(dots)
+    .transition().duration(60)
+    .attr('cx', d => sxScale(d[scatterXVar]))
+    .attr('cy', d => syScale(d[scatterYVar]))
+    .attr('fill', dotColor)
+    .attr('fill-opacity', dotOpacity)
+    .attr('r', d => brushedStations.has(d.station) ? 4 : 3);
+
+  dots.exit().remove();
+
+  // Count label
+  const selCount = brushedStations.size;
+  document.getElementById('scatter-count').textContent =
+    selCount > 0 ? `${selCount} / ${plotData.length} selected` : `${plotData.length} stations`;
 }
 
 // ── ZOOM CONTROLS ─────────────────────────────────────────
@@ -740,13 +1432,16 @@ function setupFileInput() {
   initSVG();
   setupZoom();
   setupButtons();
+  setupPlayButton();
   setupFileInput();
 
   try {
     await drawMap();
     await loadCSV('./data/weather.csv');
     document.getElementById('loading').style.display = 'none';
+    initScatterplot();
     drawDots('TAVG');
+    setupBrush();
   } catch (err) {
     console.warn('CSV load error:', err);
     document.getElementById('loading').style.display = 'none';

@@ -813,7 +813,134 @@
     <span class="writeup-label">Writeup</span>
   </div>
   <div class="writeup-body" id="writeup-content">
-    <!-- Add your writeup text here -->
+     <p style="margin-bottom: 20px;"> This visualization uses weather data collected by the NOAA Daily Global 
+      Historical Climatology Network from weather stations globally in 2017. This visualization focuses 
+      only on weather stations with viable and large enough data to observe weather patterns impacting the 
+      United States. This includes all non-sparse weather stations in the US, as well as an additional 13 
+      Canadian weather stations that lie within 150 miles of the US-Canada border. This visualization seeks 
+      to use this data to verify the accuracy and consistency of weather stations using a majority rules 
+      method. If one weather station has different readings than a majority of those next to it, further 
+      investigation can be done to see whether a specific weather phenomenon occurred only in that area 
+      or if there is a problem with that station’s readings on a certain metric. 
+    </p>
+    
+    <p style="margin-bottom: 5px;"> The visualization has 6 basic features that allow users to explore and interact with the data. 
+      The first feature is the brush mode, which allows users to select a specific zone or area within the 
+      map and only view the data associated with those weather stations. Since much of the investigation 
+      related to our visualization is geographical, we wanted to allow users to compare a smaller region of 
+      the data when comparing nearby weather stations. Since the majority rules verification is based on 
+      the closest sources, being able to use the brush tool to isolate a region central to a specific 
+      station is crucial to accomplish the intended use of the visualization.  
+    </p>
+
+    <p style="margin-bottom: 5px;">The second feature is the scatterplot on the right-hand side of the 
+      map. This scatterplot is a basic scatterplot that compares any two of the features from the dataset 
+      (temperature values, precipitation, or wind) for the selected region. Without using the brush 
+      feature, it compares all available readings for that feature on the given day. However, with the 
+      brush feature, the scatterplot only links the data within the brush, allowing for a more direct 
+      comparison of the smaller region station’s data, making the comparison between stations much more 
+      granular and specific.
+    </p>
+    
+    <p style="margin-bottom: 5px;">The third feature allows users to select a specific weather feature to 
+      view on the map from the categories of temperature, precipitation, and wind. On the left-hand side 
+      of the visualization, all 8 weather features are listed, allowing users to visualize one specific 
+      feature at a time to be able to compare them across their entire selection, whether that is the 
+      entire country or a specific region selected using the brush tool. 
+    </p>
+
+    <p style="margin-bottom: 5px;">The fourth feature is the year slider, which allows the user to move 
+      throughout any day in the year 2017 and observe the weather stations with a reading on that day. 
+      This also filters out any stations without a reading on that day or the selected weather feature. 
+      This allows for specific, year-round data visualization, since weather is very cyclically linked to 
+      the time of the year. Allowing users to control the day allows for more intelligent searching, 
+      avoiding situations like looking for snow in the US in the middle of July. 
+    </p>
+
+    <p style="margin-bottom: 5px;">The fifth feature is the tooltips present on each weather station. 
+      When a user hovers over a weather station, they can view the specific feature value for the 
+      selected day across all the features, if it has it. It also includes information about the station, 
+      such as its name and what state it is in.
+    </p>
+
+    <p style="margin-bottom: 5px;">The final basic feature lets users zoom in and out on the map as well 
+      as reset and center it at its base zoom. This is helpful for users wanting a more granular or 
+      smaller view of the map to navigate with ease. 
+    </p>
+
+    <p style="margin-bottom: 5px;">Secondly, 3 advanced features were implemented. The first feature is 
+      the state selection feature, allowing users to filter stations by selecting the state or territory 
+      where the weather stations are based. This feature goes even further into the data, using more 
+      advanced code and functions to achieve a highlighting and annotation effect. States are not only 
+      highlighted when hovered over, but also can be exactly filtered for, immediately removing every 
+      other station from the map. </p>
+
+    <p style="margin-bottom: 5px;">The second advanced feature is the map itself, requiring much 
+      intensive effort to ensure that our visualization worked out in the way that we wanted it to. 
+      We first had to work to filter out the international weather stations to ensure the scope only 
+      applied to the US and nearby ranges. Then, with AI assistance, we were able to draw the map and 
+      correctly overlay the data using the latitude and longitude data present within the data. This 
+      feature was the most effortful part of our project, and is the main reason our visualization can 
+      tell the story it does. </p>
+
+    <p style="margin-bottom: 5px;">The final advanced feature is the animate year function, which 
+      automates the slider to traverse each day of the year and apply that date filter to the stations 
+      on the map. This was an advanced tool that worked with the slider to help make the visualization 
+      more interesting for a general audience, only seeking to learn more about the weather. This was 
+      also a very difficult function to apply, having to take our filtering skills to the next level. </p>
+
+    <p style="margin-bottom: 5px;">Finally, two main visual encodings represent different aspects of the 
+      weather conditions and the weather station itself. Color ranges are shown in the legend that adapts 
+      based on the weather shown. For example, temperatures use a range of blue to red to convey cold to 
+      hot, a commonly used range to convey temperature. The second encoding is the size of the dot to 
+      represent altitude. While differences can be minimal, altitude has an impact on the accuracy of
+       weather readings. Including this can explain minor differences due to altitude differences without 
+       having to explore the data further. </p>
+
+    <p style="margin-bottom: 20px;"> We arrived at these decisions after framing our project to focus 
+      more on the accuracy of weather stations rather than observing or predicting weather patterns. 
+      After researching many other weather visualizations, we realized that their goal was to make 
+      weather data more literal. We realized that if we wanted to focus on the production of the 
+      stations, it would be more important to make the focal point of the visualization the stations 
+      themselves. And so, we pivoted our original plan of focusing on a neat visualization of the weather 
+      to focusing harder on the stations themselves. We still wanted to make sure the weather was encoded 
+      smartly and chose to follow typical conventions for temperature, precipitation, and wind, but 
+      ensured that this was the secondary part of the visualizations after being able to identify the 
+      weather stations. </p>
+
+    <p style="margin-bottom: 20px;"> Our data was sourced from NOAA Daily Global Historical Climatology 
+      Network, with their expanse of weather station data from 2017, with additional filtering and 
+      pruning completed by the instruction team prior to our team having the data. In addition, in our 
+      search before beginning the assignment, we found one main visualization that served as a very big 
+      inspiration for our visualization & story to focus on the weather stations, which was the Local 
+      Climatological Data Version 2 (https://www.ncei.noaa.gov/maps/lcd/) from the National Centers for 
+      Environmental Information. This accomplishes a somewhat similar goal, but instead grants access to 
+      certain weather stations’ data. We wanted to use our data to further this, reducing the in-between 
+      step of downloading that station’s data and instead viewing it live for specific features. </p>
+
+    <p style="margin-bottom: 20px;"> Our development process was very separate, with all 3 of our group 
+      members tackling different aspects of the project. Valentina started by developing the base of the 
+      visualization, including working with Claude to draw the US map and correctly overlay the data on 
+      it. This took ~3-4 hours and was one of the longest parts of the project, which we weren’t expecting. 
+      Valentina also set up the tooltips within the visualization, which took an additional hour. Keenan 
+      contributed the brush tool, linking to the scatterplot, the slider filter, the animate year 
+      functionality, the state selection tool, and small performance improvements to reduce lag. 
+      Many of these smaller pieces took tinier bits of time that totaled to about 2 hours of work. 
+      Finally, Jack handled the framing, write-up, and demo of the project. The initial framing and 
+      storytelling part of the project took about an hour of team discussion, followed by the write-up, 
+      which was written in ~3 hours. This was another long piece of the project since we wanted to go very 
+      in-depth about our project. Lastly, prepping the script and recording of the code demo also took 
+      another hour. Overall, the project took the team around 10-12 collective people-hours of work.</p>
+
+    <p style="margin-bottom: 5px;"> While our project work was very divide-and-conquer, we each chose to 
+      take on tasks that played to our previous strengths and skills we had before coming into the project. 
+      Because of this initial choice, we were able to make significant contributions in a very short period 
+      of time rather than having to learn skills and abilities that others had. We ensured communication 
+      throughout the entire project, making sure everyone was on the same page about what development was 
+      occurring. We used GitHub to easily be able to share code and see changes, something that helped out 
+      a lot during our development to catch bugs and track contributions to hold the group accountable to 
+      our timeline. </p>
+    
   </div>
 </div>
 
